@@ -78,10 +78,16 @@ if artist_image:
 
 def generate_image(prompt):
 
-    API_URL = "https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5"
+    token = st.secrets.get("HF_TOKEN")
+
+    if not token:
+        st.error("HF_TOKEN not configured in Streamlit Secrets.")
+        st.stop()
+
+    API_URL = "https://router.huggingface.co/hf-inference/models/runwayml/stable-diffusion-v1-5"
 
     headers = {
-        "Authorization": f"Bearer {st.secrets['HF_TOKEN']}"
+        "Authorization": f"Bearer {token}"
     }
 
     payload = {
