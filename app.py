@@ -2,6 +2,8 @@ import streamlit as st
 from PIL import Image
 import requests
 import random
+from io import BytesIO
+import time
 
 st.set_page_config(page_title="Human-AI Story Illustration Lab", layout="wide")
 
@@ -88,16 +90,30 @@ def generate_image(prompt):
         "Authorization": f"Bearer {st.secrets['HF_TOKEN']}"
     }
 
-    response = requests.post(
-        API_URL,
-        headers=headers,
-        json={"inputs": prompt},
-        timeout=60
-    )
+    for _ in range(5):
 
-    if response.status_code == 200:
-        return Image.open(BytesIO(response.content))
+        response = requests.post(
+            API_URL,
+            headers=headers,
+            json={"inputs": prompt},
+            timeout=60
+        )
 
+        # success
+        if response.status_code == 200:
+            return Image.open(BytesIO(response.content))
+
+        # model loading
+        if "loading" in response.text.lower():
+            st.warning("Model is loading on HuggingFace... retrying")
+            time.sleep(10)
+            continue
+
+        # show real error
+        st.error(response.text)
+        return None
+
+    st.error("Model took too long to start")
     return None
 
 
