@@ -78,27 +78,12 @@ if artist_image:
 
 def generate_image(prompt):
 
-    token = st.secrets.get("HF_TOKEN")
+    url = "https://image.pollinations.ai/prompt/" + prompt.replace(" ","%20")
 
-    if not token:
-        st.error("HF_TOKEN not configured in Streamlit Secrets.")
-        st.stop()
-
-    API_URL = "https://router.huggingface.co/hf-inference/models/runwayml/stable-diffusion-v1-5"
-
-    headers = {
-        "Authorization": f"Bearer {token}"
-    }
-
-    payload = {
-        "inputs": prompt,
-        "options": {"wait_for_model": True}
-    }
-
-    response = requests.post(API_URL, headers=headers, json=payload)
+    response = requests.get(url)
 
     if response.status_code != 200:
-        st.error(response.text)
+        st.error("Image generation failed")
         return None
 
     return Image.open(BytesIO(response.content))
