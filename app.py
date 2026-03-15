@@ -1,17 +1,8 @@
 import streamlit as st
 from PIL import Image
-import requests
 import random
-from io import BytesIO
 
-st.set_page_config(page_title="Human-AI Story Illustration Lab", layout="wide")
-
-st.title("🎨 Human–AI Co-Creative Story Illustration Tool")
-st.write("Artist collaborates with AI to explore storytelling visuals.")
-
-# -------------------------------
-# INPUTS
-# -------------------------------
+st.title("Human-AI Story Illustration Lab")
 
 scene = st.text_input(
     "Describe the story scene",
@@ -19,101 +10,42 @@ scene = st.text_input(
 )
 
 style = st.selectbox(
-    "Choose artistic style",
+    "Art style",
     ["Comic Book", "Caricature", "Epic Painting", "Watercolor"]
 )
 
 mood = st.selectbox(
     "Mood",
-    ["Heroic", "Divine", "Battle", "Sunset"]
+    ["Heroic","Divine","Battle","Sunset"]
 )
 
-exaggeration = st.slider("Character exaggeration", 1, 10, 5)
-
-artist_image = st.file_uploader("Upload your sketch", type=["png","jpg","jpeg"])
-
-# -------------------------------
-# AI SUGGESTIONS
-# -------------------------------
-
-st.header("🤖 AI Creative Suggestions")
-
-layouts = [
-    "Hero centered composition",
-    "Low angle dramatic perspective",
-    "Diagonal action layout",
-    "Triangular cinematic composition",
-    "Wide battlefield panoramic composition"
-]
-
-palette = {
-    "Heroic": ["Gold","Deep Red","Royal Blue"],
-    "Divine": ["White","Gold","Light Blue"],
-    "Battle": ["Black","Crimson","Dark Purple"],
-    "Sunset": ["Orange","Pink","Violet"]
-}
-
-col1, col2 = st.columns(2)
-
-with col1:
-    if st.button("Suggest Composition"):
-        st.success(random.choice(layouts))
-
-with col2:
-    if st.button("Suggest Color Palette"):
-        st.success(", ".join(palette[mood]))
-
-# -------------------------------
-# SHOW SKETCH
-# -------------------------------
+artist_image = st.file_uploader("Upload your sketch")
 
 if artist_image:
-    st.header("Artist Sketch")
     img = Image.open(artist_image)
-    st.image(img, width=350)
+    st.image(img, width=300)
 
-# -------------------------------
-# IMAGE GENERATION FUNCTION
-# -------------------------------
+st.header("AI Composition Ideas")
 
-def generate_image(prompt):
+layouts = [
+"Low angle heroic perspective",
+"Diagonal action composition",
+"Wide cinematic frame",
+"Triangular dramatic layout"
+]
 
-    url = "https://image.pollinations.ai/prompt/" + prompt.replace(" ","%20")
-
-    response = requests.get(url)
-
-    if response.status_code != 200:
-        st.error("Image generation failed")
-        return None
-
-    return Image.open(BytesIO(response.content))
-
-# -------------------------------
-# GENERATE SCENE
-# -------------------------------
-
-if st.button("Generate Illustration"):
-
-    prompt = f"""
-    Epic mythological illustration of {scene}.
-    Art style: {style}.
-    Mood: {mood}.
-    Character exaggeration level {exaggeration}.
-    Dramatic cinematic lighting.
-    Highly detailed illustration.
-    """
-
-    st.subheader("Prompt used by AI")
-    st.code(prompt)
-
-    st.subheader("AI Generated Variations")
-
-    cols = st.columns(2)
-
+if st.button("Generate Composition Ideas"):
     for i in range(4):
+        st.success(random.choice(layouts))
 
-        img = generate_image(prompt)
+st.header("AI Color Suggestions")
 
-        if img:
-            with cols[i % 2]:
-                st.image(img, width=350)
+palettes = {
+"Heroic": ["gold","deep red","royal blue"],
+"Divine": ["white","light blue","gold"],
+"Battle": ["black","crimson","dark purple"],
+"Sunset": ["orange","pink","violet"]
+}
+
+if st.button("Generate Color Palette"):
+    st.write(palettes[mood])
