@@ -1,51 +1,48 @@
 import streamlit as st
 from PIL import Image
+import numpy as np
 import random
 
-st.title("Human-AI Story Illustration Lab")
+st.title("Human-AI Story Illustration Assistant")
 
 scene = st.text_input(
-    "Describe the story scene",
-    "Hanuman jumping across the ocean to Lanka"
-)
-
-style = st.selectbox(
-    "Art style",
-    ["Comic Book", "Caricature", "Epic Painting", "Watercolor"]
-)
-
-mood = st.selectbox(
-    "Mood",
-    ["Heroic","Divine","Battle","Sunset"]
+    "Describe the scene",
+    "Hanuman flying over the ocean"
 )
 
 artist_image = st.file_uploader("Upload your sketch")
 
-if artist_image:
-    img = Image.open(artist_image)
-    st.image(img, width=300)
-
-st.header("AI Composition Ideas")
-
 layouts = [
 "Low angle heroic perspective",
 "Diagonal action composition",
-"Wide cinematic frame",
+"Wide cinematic landscape",
 "Triangular dramatic layout"
 ]
 
-if st.button("Generate Composition Ideas"):
-    for i in range(4):
+def extract_colors(image):
+
+    img = np.array(image)
+    pixels = img.reshape(-1,3)
+
+    idx = np.random.choice(len(pixels), 5)
+    colors = pixels[idx]
+
+    return colors
+
+if artist_image:
+
+    img = Image.open(artist_image)
+
+    st.image(img, width=300)
+
+    st.header("AI Color Suggestions")
+
+    colors = extract_colors(img)
+
+    for c in colors:
+        st.write(f"RGB: {c}")
+
+    st.header("AI Composition Ideas")
+
+    for i in range(3):
         st.success(random.choice(layouts))
-
-st.header("AI Color Suggestions")
-
-palettes = {
-"Heroic": ["gold","deep red","royal blue"],
-"Divine": ["white","light blue","gold"],
-"Battle": ["black","crimson","dark purple"],
-"Sunset": ["orange","pink","violet"]
-}
-
-if st.button("Generate Color Palette"):
-    st.write(palettes[mood])
